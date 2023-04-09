@@ -3,6 +3,11 @@
 #include<vector>
 using namespace std;
 //在指定位置显示内容 
+struct Snake
+{
+	int x, y;
+};
+vector<Snake>snake;
 void gotoxy(int x,int y,char c)
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbiInfo; //variablendklaration
@@ -27,15 +32,36 @@ void init(int X1,int Y1,int X2,int Y2)
 		gotoxy(X1, j, '#');
 		gotoxy(X2, j, '#');
 	}
+	snake.clear();//初始化清空	
+	Snake t{};
+	t.x = (X1 + X2) / 2;
+	t.y = (Y1 + Y2) / 2;
+	snake.push_back(t);
 }
-struct Snake
+//显示蛇的内容
+int XX[4] = { 0,0,-1,1 };
+int YY[4] = { -1,1,0,0 };
+void Print(int direction)
 {
-	int x, y;
-};
-vector<Snake>snake;
+	int n = snake.size() - 1;
+	gotoxy(snake[n].x, snake[n].y, ' ');//先清除蛇尾留下的痕迹 
+	for (int i = n; i >= 1; i--)
+		snake[i] = snake[i - 1];//进行节点更新
+	snake[0].x += XX[direction];
+	snake[0].y += YY[direction];
+	for (int i = 1; i <= n; i++)
+		gotoxy(snake[i].x, snake[i].y, '*');
+	gotoxy(snake[0].x, snake[0].y, '@');//蛇头用@表示 
+}
+
 
 int main()
 {
 	init(1,1,60,30);//活动范围
+	while (true)
+	{
+		Print(1);
+		Sleep(500);//延迟500ms，控制程序显示时间	
+	}
 	return 0;
 } 
