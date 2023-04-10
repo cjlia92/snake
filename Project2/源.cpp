@@ -2,6 +2,7 @@
 #include<windows.h>
 #include<vector>
 #include<conio.h>
+#define random(a,b) (rand()%(b-a+1)+a)
 using namespace std;
 //在指定位置显示内容 
 struct Snake
@@ -21,7 +22,6 @@ void gotoxy(int x,int y,char c)
 	printf("%c",c);//输出你指定的字符 
 }  
 //初始化函数 
-
 int X1 = 1, Y1 = 1;
 int X2 = 60, Y2 = 30;
 void init()
@@ -42,6 +42,43 @@ void init()
 	t.y = (Y1 + Y2) / 2;
 	snake.push_back(t);
 }
+//食物生成
+int food_x, food_y;
+bool search(int L, int R)
+{
+	if (L > R)return false;
+	int MID = random(L, R);
+	int d = X2 - X1 - 1;//不能包括围墙，需要把围墙的宽度减去 
+	int y = (MID + d) / d + X1;
+	int t = MID % d;
+	int x = Y1;
+	if (t == 0)
+		x += d;
+	else x += t;
+	bool flag = false;
+	for (int i = 0; i < snake.size(); i++)
+	{
+		if (snake[i].x == x && snake[i].y == y)
+		{
+			flag = true;
+			break;
+		}
+	}
+	if (flag)
+	{
+		bool res = search(L, MID - 1);
+		if (res)return true;
+		res = search(MID + 1, R);
+		if (res)return true;
+		return false;
+	}
+	else
+	{
+		food_x = x;
+		food_y = y;
+		return true;
+	}
+}
 //显示蛇的内容
 int XX[4] = { 0,0,-1,1 };
 int YY[4] = { -1,1,0,0 };
@@ -56,6 +93,7 @@ void Print(int direction)
 	for (int i = 1; i <= n; i++)
 		gotoxy(snake[i].x, snake[i].y, '*');
 	gotoxy(snake[0].x, snake[0].y, '@');//蛇头用@表示 
+	gotoxy(food_x, food_y, 'O');
 }
 
 
@@ -63,9 +101,24 @@ int main()
 {
 	init();//活动范围
 	int direction = 1;
+	bool is_food = false;//是否有食物判断
 	while (true)
 	{
+		if (is_food == false)
+		{
+			search((X1 + 2) * (Y1 + 2), (X2 - 2) * (Y2 - 2));
+			is_food = true;
+		}
 		Print(direction);
+
+		if (snake[0].x == food_x && snake[0].y == food_y)
+		{
+			Snake t;
+			t.x = food_x, t.y = food_y;
+			is_food = false;
+			snake.insert(snake.begin(), t);
+		}
+
 		if (_kbhit())//判断有键盘指令输入 
 		{
 			char c = _getch();
@@ -78,8 +131,8 @@ int main()
 			else if (c == 'D')//往右 
 				direction = 3;
 		}
-		gotoxy(X2 + 1, Y2 + 1, ' ');
-		Sleep(300);//延迟300ms，控制程序显示时间	
+		gotoxy(X2 + 1, Y2 + 1, ' ');//为了不在游戏界面中显示白色光标影响界面效果 
+		Sleep(150);//延迟150ms，控制程序显示时间	
 	}
 	return 0;
 } 
