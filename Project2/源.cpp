@@ -1,6 +1,7 @@
 #include<iostream>
 #include<windows.h>
 #include<vector>
+#include<conio.h>
 using namespace std;
 //在指定位置显示内容 
 struct Snake
@@ -20,7 +21,10 @@ void gotoxy(int x,int y,char c)
 	printf("%c",c);//输出你指定的字符 
 }  
 //初始化函数 
-void init(int X1,int Y1,int X2,int Y2)
+
+int X1 = 1, Y1 = 1;
+int X2 = 60, Y2 = 30;
+void init()
 {
 	for (int i = X1; i <= X2; i++)
 	{
@@ -57,11 +61,25 @@ void Print(int direction)
 
 int main()
 {
-	init(1,1,60,30);//活动范围
+	init();//活动范围
+	int direction = 1;
 	while (true)
 	{
-		Print(1);
-		Sleep(500);//延迟500ms，控制程序显示时间	
+		Print(direction);
+		if (_kbhit())//判断有键盘指令输入 
+		{
+			char c = _getch();
+			if (c == 'W')//往上 
+				direction = 0;
+			else if (c == 'S')//往下 
+				direction = 1;
+			else if (c == 'A')//往左 
+				direction = 2;
+			else if (c == 'D')//往右 
+				direction = 3;
+		}
+		gotoxy(X2 + 1, Y2 + 1, ' ');
+		Sleep(300);//延迟300ms，控制程序显示时间	
 	}
 	return 0;
 } 
