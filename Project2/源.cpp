@@ -2,8 +2,10 @@
 #include<windows.h>
 #include<vector>
 #include<conio.h>
-#define random(a,b) (rand()%(b-a+1)+a)
+#include<time.h>
 using namespace std;
+#define random(a,b) (rand()%(b-a+1)+a)
+
 //在指定位置显示内容 
 struct Snake
 {
@@ -26,6 +28,7 @@ int X1 = 1, Y1 = 1;
 int X2 = 60, Y2 = 30;
 void init()
 {
+	srand((int)time(0));
 	for (int i = X1; i <= X2; i++)
 	{
 		gotoxy(i, Y1, '#');
@@ -96,10 +99,20 @@ void Print(int direction)
 	gotoxy(food_x, food_y, 'O');
 }
 
+bool game_over()
+{
+	for (int i = 1; i < snake.size(); i++)
+	{
+		if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)return false;
+	}
+	if (snake[0].x >= X2 || snake[0].x <= X1)return false;
+	if (snake[0].y >= Y2 || snake[0].y <= Y1)return false;
+	return true;
+}
 
 int main()
 {
-	init();//活动范围
+	init();
 	int direction = 1;
 	bool is_food = false;//是否有食物判断
 	while (true)
@@ -109,7 +122,7 @@ int main()
 			search((X1 + 2) * (Y1 + 2), (X2 - 2) * (Y2 - 2));
 			is_food = true;
 		}
-		Print(direction);
+
 
 		if (snake[0].x == food_x && snake[0].y == food_y)
 		{
@@ -117,6 +130,13 @@ int main()
 			t.x = food_x, t.y = food_y;
 			is_food = false;
 			snake.insert(snake.begin(), t);
+		}
+		Print(direction);
+		if (game_over() == false)
+		{
+			gotoxy(X1, Y2 + 1, ' ');
+			cout << "游戏结束！！！\n";
+			return 0;
 		}
 
 		if (_kbhit())//判断有键盘指令输入 
